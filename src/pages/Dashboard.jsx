@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import FcmTester from '../components/FcmTester';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -27,6 +28,8 @@ const Dashboard = () => {
       if (response.ok) {
         const data = await response.json();
         setUser(data);
+        // Automatically try to get push token and send to backend
+        registerFcmToken(token);
       } else {
         localStorage.removeItem('joker_token');
       }
@@ -34,6 +37,44 @@ const Dashboard = () => {
       console.error('Token validation error:', err);
     } finally {
       setIsLoadingUser(false);
+    }
+  };
+
+  const registerFcmToken = async (authToken) => {
+    console.log('[Dashboard] Starting registerFcmToken flow...');
+    try {
+      if (typeof window !== 'undefined' && 'Notification' in window) {
+        console.log('[Dashboard] Notification permission is:', Notification.permission);
+        if (Notification.permission === 'granted') {
+          console.log('[Dashboard] Permission is granted, attempting to get Firebase token...');
+          import('firebase/messaging').then(async ({ getToken }) => {
+            const { messaging } = await import('../firebase');
+            const VAPID_KEY = 'BARtYAZpbdC3YjphAm3xkjT57oxzne4MAMkJ-dUlJxy8hBVRxyDuwpY_i8XovoFKFHvlKjJ5glK7iiFzHv6SCN4';
+            const token = await getToken(messaging, { vapidKey: VAPID_KEY });
+            console.log('[Dashboard] Retrieved FCM token:', token ? 'Success' : 'Failed/Empty');
+            if (token) {
+              // Send to backend
+              console.log('[Dashboard] Sending FCM token to backend...');
+              fetch('http://localhost:8080/api/users/fcm-token', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({ token: token, deviceType: 'WEB' })
+              }).then(res => {
+                console.log('[Dashboard] Backend FCM API response status:', res.status);
+              }).catch(err => console.error('[Dashboard] Failed to send FCM token to backend', err));
+            }
+          }).catch(err => console.error('[Dashboard] Failed to load firebase messaging', err));
+        } else {
+          console.log('[Dashboard] Notification permission is not granted. Cannot auto-register FCM token.');
+        }
+      } else {
+        console.log('[Dashboard] window or Notification not supported in browser environment');
+      }
+    } catch (e) {
+      console.error('[Dashboard] FCM Token registration error', e);
     }
   };
 
@@ -131,6 +172,10 @@ const Dashboard = () => {
               </tbody>
             </table>
           </div>
+        </section>
+
+        <section className="fcm-test-section">
+          <FcmTester />
         </section>
       </main>
 
