@@ -1,0 +1,84 @@
+.theme-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 32px;
+}
+
+.theme-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #334155;
+    transition: .4s;
+    border-radius: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 6px;
+}
+
+.slider::before {
+    position: absolute;
+    content: "";
+    height: 24px;
+    width: 24px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+    z-index: 2;
+}
+
+input:checked+.slider {
+    background-color: #e2e8f0;
+}
+
+input:checked+.slider::before {
+    transform: translateX(28px);
+    background-color: #000;
+}
+
+.icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    transition: opacity 0.3s;
+}
+
+.icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.icon-moon {
+    color: #f1f5f9;
+    opacity: 1;
+}
+
+.icon-sun {
+    color: #475569;
+    opacity: 1;
+}
+
+/* Toggle visibility of icons based on state if needed, or just let them be behind/side */
+input:checked+.slider .icon-moon {
+    opacity: 0.2;
+}
+
+input:not(:checked)+.slider .icon-sun {
+    opacity: 0.2;
+}

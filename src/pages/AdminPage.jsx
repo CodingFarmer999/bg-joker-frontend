@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import NotificationBell from '../components/NotificationBell';
 import EventCalendar from '../components/EventCalendar';
+import ThemeToggle from '../components/ThemeToggle';
 import './Dashboard.css';
 import './AdminPage.css'; // I will create this for modal styles
 
@@ -108,7 +109,8 @@ const AdminPage = () => {
         <div className="dashboard-container">
             <nav className="dashboard-nav">
                 <div className="logo">BG Joker - Admin</div>
-                <div className="nav-actions" style={{ display: 'flex', alignItems: 'center' }}>
+                <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <ThemeToggle />
                     <NotificationBell />
                     <button className="login-btn" onClick={() => navigate('/')}>
                         Back to Dashboard

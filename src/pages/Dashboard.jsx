@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import FcmTester from '../components/FcmTester';
 import NotificationBell from '../components/NotificationBell';
 import EventCalendar from '../components/EventCalendar';
+import ThemeToggle from '../components/ThemeToggle';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -104,7 +105,8 @@ const Dashboard = () => {
     <div className="dashboard-container">
       <nav className="dashboard-nav">
         <div className="logo">BG Joker</div>
-        <div className="nav-actions">
+        <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <ThemeToggle />
           {isLoadingUser ? (
             <div className="loader-small"></div>
           ) : user ? (
@@ -114,7 +116,7 @@ const Dashboard = () => {
               <button
                 className="login-btn"
                 onClick={() => navigate('/admin')}
-                style={{ marginRight: '1rem', background: 'transparent', border: '1px solid var(--primary)', color: 'var(--primary)' }}
+                style={{ background: 'transparent', border: '1px solid var(--primary)', color: 'var(--primary)' }}
               >
                 Admin Panel
               </button>

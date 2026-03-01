@@ -15,8 +15,8 @@
 }
 
 .modal-content.admin-modal {
-    background: var(--bg-color, #ffffff);
-    color: var(--text-main, #1e293b);
+    background: var(--bg-surface);
+    color: var(--text-main);
     padding: 30px;
     border-radius: 20px;
     width: 100%;
@@ -51,7 +51,7 @@
     padding: 10px 12px;
     border-radius: 8px;
     border: 1px solid var(--glass-border);
-    background: #f8fafc;
+    background: var(--border-subtle);
     color: var(--text-main);
     font-family: inherit;
     font-size: 1rem;
@@ -72,8 +72,8 @@
 
 .cancel-btn {
     padding: 10px 20px;
-    background: #f1f5f9;
-    color: #64748b;
+    background: var(--border-subtle);
+    color: var(--text-muted);
     border-radius: 10px;
     font-weight: 600;
 }
@@ -100,17 +100,4 @@
         opacity: 1;
         transform: scale(1);
     }
-}
-
-/* Dark mode fallback for modal if background is dark */
-body:not([style*="background: #ffffff"]) .admin-modal {
-    background: #1e1b4b;
-    color: #f8fafc;
-}
-
-body:not([style*="background: #ffffff"]) .form-group input,
-body:not([style*="background: #ffffff"]) .form-group select,
-body:not([style*="background: #ffffff"]) .form-group textarea {
-    background: rgba(255, 255, 255, 0.05);
-    color: #f8fafc;
 }

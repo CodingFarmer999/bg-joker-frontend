@@ -15,7 +15,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 0 40px;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--glass-bg);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--glass-border);
     position: sticky;
@@ -120,7 +120,7 @@
 }
 
 .stat-card {
-    background: var(--glass-bg);
+    background: var(--bg-card);
     backdrop-filter: blur(12px);
     border: 1px solid var(--glass-border);
     border-radius: 20px;
@@ -134,13 +134,13 @@
 
 .stat-card:hover {
     transform: translateY(-5px);
-    border-color: rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--primary);
+    background: var(--bg-surface);
 }
 
 .stat-icon {
     font-size: 2rem;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--border-subtle);
     width: 60px;
     height: 60px;
     display: flex;
@@ -174,7 +174,7 @@
 }
 
 .table-section {
-    background: var(--glass-bg);
+    background: var(--bg-card);
     backdrop-filter: blur(12px);
     border: 1px solid var(--glass-border);
     border-radius: 20px;
@@ -212,8 +212,9 @@
 
 .mock-table td {
     padding: 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--border-subtle);
     font-size: 0.95rem;
+    color: var(--text-main);
 }
 
 .status-badge {
