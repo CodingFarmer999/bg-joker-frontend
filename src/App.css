@@ -176,13 +176,15 @@
 
 /* Background Blobs */
 .blob {
-  position: absolute;
+  position: fixed;
   width: 500px;
   height: 500px;
   filter: blur(80px);
   z-index: -1;
   opacity: 0.4;
   border-radius: 50%;
+  pointer-events: none;
+  will-change: transform;
 }
 
 .blob-1 {
