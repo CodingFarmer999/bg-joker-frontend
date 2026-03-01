@@ -174,39 +174,4 @@
   text-decoration: underline;
 }
 
-/* Background Blobs */
-.blob {
-  position: fixed;
-  width: 500px;
-  height: 500px;
-  filter: blur(80px);
-  z-index: -1;
-  opacity: 0.4;
-  border-radius: 50%;
-  pointer-events: none;
-  will-change: transform;
-}
-
-.blob-1 {
-  background: #3b82f6;
-  top: -100px;
-  left: -100px;
-  animation: move 20s infinite alternate;
-}
-
-.blob-2 {
-  background: #a855f7;
-  bottom: -150px;
-  right: -100px;
-  animation: move 15s infinite alternate-reverse;
-}
-
-@keyframes move {
-  from {
-    transform: translate(0, 0);
-  }
-
-  to {
-    transform: translate(100px, 50px);
-  }
-}
+/* Background Blobs removed for cleaner UI */

@@ -361,9 +361,259 @@
     color: white;
 }
 
+@media (max-width: 1024px) {
+    .event-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+}
+
 @media (max-width: 900px) {
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
     .header-right {
         width: 100%;
         justify-content: space-between;
+        flex-wrap: wrap;
     }
+}
+
+@media (max-width: 768px) {
+    .calendar-section {
+        padding: 1rem;
+    }
+
+    .calendar-container {
+        padding: 1rem;
+    }
+
+    .calendar-day {
+        min-height: 80px;
+        padding: 6px;
+    }
+
+    .day-number {
+        font-size: 0.8rem;
+    }
+
+    .event-tag-small {
+        font-size: 0.65rem;
+        padding: 1px 4px;
+        line-height: 1.2;
+    }
+
+    .current-month-display {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .header-right {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .view-tabs,
+    .filter-group {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .tab-btn,
+    .filter-btn {
+        flex: 1;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .calendar-grid {
+        gap: 4px;
+    }
+
+    .calendar-day {
+        min-height: 50px;
+        padding: 4px;
+        justify-content: flex-start;
+    }
+
+    /* On very small mobile, only show a mark if there are events to avoid grid overflow */
+    .calendar-day.has-events::after {
+        content: '';
+        display: block;
+        width: 6px;
+        height: 6px;
+        background: var(--primary);
+        border-radius: 50%;
+        margin-top: 4px;
+    }
+
+    .calendar-day .event-tag-small {
+        display: none;
+        /* Hide text titles on mobile grid to save space */
+    }
+
+    .calendar-weekday {
+        font-size: 0.7rem;
+        letter-spacing: 0;
+    }
+}
+
+/* Event Detail Modal Styles */
+.event-detail-modal {
+    background: #1e1b4b;
+    /* Dark theme default */
+    color: #f8fafc;
+    padding: 30px;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 550px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Override for light mode if applicable */
+body[style*="background: #ffffff"] .event-detail-modal {
+    background: #ffffff;
+    color: #1e293b;
+    border: 1px solid #e2e8f0;
+}
+
+.detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.detail-type-badge {
+    padding: 6px 14px;
+    border-radius: 99px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.detail-type-badge.official {
+    background: rgba(var(--primary-rgb), 0.15);
+    color: var(--primary);
+    border: 1px solid rgba(var(--primary-rgb), 0.3);
+}
+
+.detail-type-badge.casual {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.close-modal-btn {
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-size: 2rem;
+    cursor: pointer;
+    line-height: 1;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.close-modal-btn:hover {
+    opacity: 1;
+}
+
+.detail-title {
+    margin: 0 0 25px 0;
+    font-size: 1.75rem;
+    font-weight: 800;
+}
+
+.detail-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 20px;
+    border-radius: 16px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.info-label {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+body[style*="background: #ffffff"] .info-label {
+    color: #64748b;
+}
+
+.info-value {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.detail-description {
+    margin-bottom: 35px;
+}
+
+.detail-description h4 {
+    margin: 0 0 10px 0;
+    font-size: 0.9rem;
+    color: var(--primary);
+}
+
+.detail-description p {
+    line-height: 1.6;
+    opacity: 0.8;
+}
+
+.detail-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.delete-btn {
+    background: #ef4444;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.delete-btn:hover {
+    background: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.event-detail-modal {
+    animation: fadeInScale 0.3s ease-out;
 }
