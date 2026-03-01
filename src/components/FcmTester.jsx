@@ -35,8 +35,32 @@ const FcmTester = () => {
                     const currentToken = await getToken(messaging, { vapidKey: VAPID_KEY });
                     if (currentToken) {
                         setFcmToken(currentToken);
-                        setStatus('Token generated successfully!');
+                        setStatus('Token generated successfully! Saving to database...');
                         console.log('FCM Token:', currentToken);
+
+                        // Also sync to backend so the user doesn't have to refresh
+                        const jwtToken = localStorage.getItem('joker_token');
+                        if (jwtToken) {
+                            try {
+                                const res = await fetch('/api/users/fcm-token', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer ${jwtToken}`
+                                    },
+                                    body: JSON.stringify({ token: currentToken, deviceType: 'WEB' })
+                                });
+                                if (res.ok) {
+                                    setStatus('Token generated & saved to database successfully!');
+                                } else {
+                                    setStatus('Token generated, but failed to save to DB.');
+                                }
+                            } catch (e) {
+                                setStatus(`Error saving DB: ${e.message}`);
+                            }
+                        } else {
+                            setStatus('Token generated! (Not saved: You are not logged in)');
+                        }
                     } else {
                         setStatus('Failed to generate token. Check configuration and VAPID key.');
                     }
@@ -58,7 +82,7 @@ const FcmTester = () => {
 
         setStatus('Sending request to backend API...');
         try {
-            const response = await fetch('http://localhost:8080/api/test/fcm/send', {
+            const response = await fetch('/api/test/fcm/send', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -82,31 +106,7 @@ const FcmTester = () => {
         }
     };
 
-    const sendBroadcastTestPush = async () => {
-        setStatus('Sending broadcast request to backend API...');
-        try {
-            const response = await fetch('http://localhost:8080/api/test/fcm/broadcast', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    title: 'Broadcast Push',
-                    body: 'This push was triggered to all registered devices from FcmTester!'
-                })
-            });
 
-            if (response.ok) {
-                const resultText = await response.text();
-                setStatus(`Backend Response: ${resultText}`);
-            } else {
-                setStatus(`Backend API Error: ${response.status}`);
-            }
-        } catch (error) {
-            console.error('Error sending request to backend:', error);
-            setStatus(`Error calling backend: ${error.message}`);
-        }
-    };
 
     return (
         <div style={{ padding: '20px', border: '1px solid #ddd', borderRadius: '8px', marginTop: '20px', backgroundColor: 'rgba(255,255,255,0.05)' }}>
@@ -149,14 +149,7 @@ const FcmTester = () => {
                 </button>
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
-                <button
-                    onClick={sendBroadcastTestPush}
-                    style={{ padding: '8px 16px', cursor: 'pointer', backgroundColor: '#4caf50', color: 'white', border: 'none', borderRadius: '4px' }}
-                >
-                    3. Broadcast to All Devices
-                </button>
-            </div>
+
         </div>
     );
 };

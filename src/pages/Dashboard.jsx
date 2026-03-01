@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FcmTester from '../components/FcmTester';
+import NotificationBell from '../components/NotificationBell';
+import EventCalendar from '../components/EventCalendar';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -19,7 +21,7 @@ const Dashboard = () => {
 
   const validateToken = async (token) => {
     try {
-      const response = await fetch('http://localhost:8080/api/auth/validate', {
+      const response = await fetch('/api/auth/validate', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -55,7 +57,7 @@ const Dashboard = () => {
             if (token) {
               // Send to backend
               console.log('[Dashboard] Sending FCM token to backend...');
-              fetch('http://localhost:8080/api/users/fcm-token', {
+              fetch('/api/users/fcm-token', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -107,6 +109,15 @@ const Dashboard = () => {
             <div className="loader-small"></div>
           ) : user ? (
             <div className="user-profile-header">
+              <NotificationBell />
+              {/* 目前為了方便你測試，只要登入就會顯示 Admin 按鈕。之後可以改成 user.role === 'ROLE_ADMIN' 才顯示 */}
+              <button
+                className="login-btn"
+                onClick={() => navigate('/admin')}
+                style={{ marginRight: '1rem', background: 'transparent', border: '1px solid var(--primary)', color: 'var(--primary)' }}
+              >
+                Admin Panel
+              </button>
               <span className="user-name">Hi, {user.displayName || user.username}</span>
               <button className="logout-btn" onClick={handleLogout}>
                 Logout
@@ -141,38 +152,7 @@ const Dashboard = () => {
           ))}
         </section>
 
-        <section className="table-section">
-          <div className="section-header">
-            <h2>Recent Games</h2>
-            <button className="view-all">View All</button>
-          </div>
-          <div className="table-container">
-            <table className="mock-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Game Name</th>
-                  <th>Category</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {mockGames.map((game) => (
-                  <tr key={game.id}>
-                    <td>#{game.id}</td>
-                    <td>{game.name}</td>
-                    <td>{game.category}</td>
-                    <td>
-                      <span className={`status-badge ${game.status.toLowerCase().replace(' ', '-')}`}>
-                        {game.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
+        <EventCalendar />
 
         <section className="fcm-test-section">
           <FcmTester />

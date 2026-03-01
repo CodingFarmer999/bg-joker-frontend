@@ -25,7 +25,7 @@ function LoginPage() {
         setIsLoading(true)
 
         try {
-            const response = await fetch('http://localhost:8080/api/auth/login', {
+            const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -53,8 +53,8 @@ function LoginPage() {
     }
 
     const handleLineLogin = () => {
-        window.location.href = 'http://localhost:8080/oauth2/authorization/line'
-    }
+        window.location.href = '/oauth2/authorization/line';
+    };
 
     const handleLogout = () => {
         localStorage.removeItem('joker_token')
@@ -140,7 +140,7 @@ function LoginPage() {
                 </div>
 
                 <div className="login-footer">
-                    <p>Don't have an account? <a href="#">Sign up</a></p>
+                    <p>Don't have an account? <span onClick={() => navigate('/register')} style={{ cursor: 'pointer', color: 'var(--primary)', textDecoration: 'underline' }}>Sign up</span></p>
                 </div>
             </div>
 
