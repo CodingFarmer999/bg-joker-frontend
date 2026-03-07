@@ -1,13 +1,15 @@
 import { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './EventCalendar.css';
 
-const EventCalendar = ({ isAdmin = false, onAddEvent, onDeleteEvent }) => {
+const EventCalendar = ({ isAdmin = false, onAddEvent, onEditEvent, onDeleteEvent }) => {
     const [filter, setFilter] = useState('ALL'); // ALL, OFFICIAL, CASUAL
     const [viewMode, setViewMode] = useState('CALENDAR'); // CALENDAR, LIST
     const [currentDate, setCurrentDate] = useState(new Date());
     const [events, setEvents] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedEvent, setSelectedEvent] = useState(null);
+    const navigate = useNavigate();
 
     // Fetch real data from Backend
     useEffect(() => {
@@ -75,12 +77,13 @@ const EventCalendar = ({ isAdmin = false, onAddEvent, onDeleteEvent }) => {
         setCurrentDate(newDate);
     };
 
-    const handleDelete = async (eventId) => {
-        if (window.confirm('確定要刪除此活動嗎？')) {
-            await onDeleteEvent(eventId);
-            setSelectedEvent(null);
-            fetchEvents();
-        }
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+    const handleDelete = async () => {
+        await onDeleteEvent(selectedEvent.id);
+        setShowDeleteConfirm(false);
+        setSelectedEvent(null);
+        fetchEvents();
     };
 
     return (
@@ -158,10 +161,16 @@ const EventCalendar = ({ isAdmin = false, onAddEvent, onDeleteEvent }) => {
                                                 {day.events.map((event, eventIdx) => (
                                                     <div
                                                         key={eventIdx}
-                                                        className={`event-tag-small ${event.eventType.toLowerCase()}`}
+                                                        className="event-tag-small"
+                                                        style={{
+                                                            backgroundColor: event.gameType?.color || 'var(--primary)'
+                                                        }}
                                                         title={event.title}
                                                         onClick={() => setSelectedEvent(event)}
                                                     >
+                                                        <span style={{ opacity: 0.8, marginRight: '4px' }}>
+                                                            {event.gameType?.displayName?.split(' ')[0]} {/* 擷取縮寫，例如 '寶可夢' */}
+                                                        </span>
                                                         {event.title}
                                                     </div>
                                                 ))}
@@ -181,8 +190,8 @@ const EventCalendar = ({ isAdmin = false, onAddEvent, onDeleteEvent }) => {
                             <div className="no-events" style={{ color: 'rgba(255,255,255,0.5)', padding: '2rem' }}>本月暫無活動</div>
                         ) : (
                             filteredEvents.map(event => (
-                                <div key={event.id} className={`event-card ${event.eventType.toLowerCase()}`}>
-                                    <div className="event-type-tag">
+                                <div key={event.id} className="event-card" style={{ borderLeft: `4px solid ${event.gameType?.color || 'var(--primary)'}` }}>
+                                    <div className="event-type-tag" style={{ background: event.gameType?.color || 'var(--primary)', color: '#fff' }}>
                                         {event.eventType === 'OFFICIAL' ? '官方' : '揪團'}
                                     </div>
                                     <div className="event-card-content">
@@ -219,7 +228,10 @@ const EventCalendar = ({ isAdmin = false, onAddEvent, onDeleteEvent }) => {
                 <div className="modal-overlay" onClick={() => setSelectedEvent(null)}>
                     <div className="modal-content event-detail-modal" onClick={e => e.stopPropagation()}>
                         <div className="detail-header">
-                            <span className={`detail-type-badge ${selectedEvent.eventType.toLowerCase()}`}>
+                            <span className="detail-type-badge" style={{ background: selectedEvent.gameType?.color || 'var(--primary)', color: '#fff' }}>
+                                {selectedEvent.gameType?.displayName}
+                            </span>
+                            <span style={{ fontSize: '0.8rem', padding: '4px 8px', borderRadius: '4px', border: `1px solid ${selectedEvent.gameType?.color || 'var(--primary)'}`, color: selectedEvent.gameType?.color || 'var(--primary)' }}>
                                 {selectedEvent.eventType === 'OFFICIAL' ? '官方活動' : '玩家揪團'}
                             </span>
                             <button className="close-modal-btn" onClick={() => setSelectedEvent(null)}>&times;</button>
@@ -233,7 +245,10 @@ const EventCalendar = ({ isAdmin = false, onAddEvent, onDeleteEvent }) => {
                             </div>
                             <div className="info-item">
                                 <span className="info-label">遊戲類型</span>
-                                <span className="info-value">{selectedEvent.gameType}</span>
+                                <span className="info-value">
+                                    <span style={{ display: 'inline-block', width: '12px', height: '12px', borderRadius: '50%', backgroundColor: selectedEvent.gameType?.color, marginRight: '8px' }}></span>
+                                    {selectedEvent.gameType?.displayName}
+                                </span>
                             </div>
                             <div className="info-item">
                                 <span className="info-label">人數狀態</span>
@@ -248,15 +263,54 @@ const EventCalendar = ({ isAdmin = false, onAddEvent, onDeleteEvent }) => {
 
                         <div className="detail-actions">
                             {isAdmin ? (
-                                <button className="delete-btn" onClick={() => handleDelete(selectedEvent.id)}>
-                                    🗑️ 刪除活動
-                                </button>
+                                <>
+                                    <button className="submit-btn" onClick={() => onEditEvent(selectedEvent)} style={{ marginRight: '8px' }}>
+                                        ✏️ 編輯活動
+                                    </button>
+                                    <button className="delete-btn" onClick={() => setShowDeleteConfirm(true)}>
+                                        🗑️ 刪除活動
+                                    </button>
+                                    <button
+                                        className="view-participants-btn"
+                                        onClick={() => navigate(`/admin/events/${selectedEvent.id}`)}
+                                        style={{ backgroundColor: 'var(--success)', marginTop: '8px', color: '#fff', width: '100%', justifyContent: 'center' }}
+                                    >
+                                        👥 查看報名詳情
+                                    </button>
+                                </>
                             ) : (
                                 <button className="submit-btn" disabled={selectedEvent.status === 'FULL'}>
                                     {selectedEvent.status === 'FULL' ? '人數已滿' : '立即報名'}
                                 </button>
                             )}
                             <button className="cancel-btn" onClick={() => setSelectedEvent(null)}>關閉</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirmation Overlay */}
+            {showDeleteConfirm && (
+                <div className="modal-overlay" style={{ zIndex: 3000 }}>
+                    <div className="modal-content admin-modal confirm-modal animated-fade">
+                        <div style={{ textAlign: 'center', padding: '10px' }}>
+                            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚠️</div>
+                            <h2 style={{ marginBottom: '1rem' }}>確認刪除？</h2>
+                            <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>
+                                此操作無法復原，您確定要刪除活動 「{selectedEvent?.title}」 嗎？
+                            </p>
+                            <div className="modal-actions" style={{ justifyContent: 'center' }}>
+                                <button className="cancel-btn" onClick={() => setShowDeleteConfirm(false)}>
+                                    取消
+                                </button>
+                                <button
+                                    className="delete-btn"
+                                    style={{ background: '#ef4444' }}
+                                    onClick={handleDelete}
+                                >
+                                    確認刪除
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

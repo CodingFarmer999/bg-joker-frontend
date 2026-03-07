@@ -39,13 +39,13 @@
     border-radius: 12px;
     font-weight: 600;
     font-size: 0.95rem;
-    box-shadow: 0 4px 12px rgba(0, 185, 0, 0.2);
+    box-shadow: 0 4px 12px var(--primary-glow);
 }
 
 .login-btn:hover {
     background: var(--primary-hover);
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 185, 0, 0.3);
+    box-shadow: 0 6px 16px var(--primary-glow);
 }
 
 .user-profile-header {
@@ -169,7 +169,7 @@
 
 .stat-change {
     font-size: 0.8rem;
-    color: #10b981;
+    color: var(--success);
     font-weight: 600;
 }
 

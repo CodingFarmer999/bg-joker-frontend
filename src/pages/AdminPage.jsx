@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import NotificationBell from '../components/NotificationBell';
@@ -16,14 +16,38 @@ const AdminPage = () => {
 
     // New Event State
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingEventId, setEditingEventId] = useState(null);
     const [newEvent, setNewEvent] = useState({
         title: '',
         description: '',
-        eventTime: '',
+        eventTime: new Date().toLocaleDateString('en-CA') + 'T19:00',
         maxParticipants: 10,
         eventType: 'OFFICIAL',
-        gameType: 'Board Game'
+        gameType: 'BOARD_GAME'
     });
+    const [gameTypes, setGameTypes] = useState([]);
+
+    useEffect(() => {
+        const fetchGameTypes = async () => {
+            try {
+                const response = await fetch('/api/games');
+                if (response.ok) {
+                    const data = await response.json();
+                    setGameTypes(data);
+                }
+            } catch (err) {
+                console.error('Failed to fetch game types', err);
+            }
+        };
+        fetchGameTypes();
+    }, []);
+
+    const timeOptions = [];
+    for (let h = 0; h < 24; h++) {
+        const hh = String(h).padStart(2, '0');
+        timeOptions.push(`${hh}:00`);
+        timeOptions.push(`${hh}:30`);
+    }
     const [refreshKey, setRefreshKey] = useState(0);
 
     const handleBroadcast = async () => {
@@ -53,12 +77,15 @@ const AdminPage = () => {
         }
     };
 
-    const handleCreateEvent = async (e) => {
+    const handleSubmitEvent = async (e) => {
         e.preventDefault();
         try {
             const token = localStorage.getItem('joker_token');
-            const response = await fetch('/api/events', {
-                method: 'POST',
+            const url = editingEventId ? `/api/events/${editingEventId}` : '/api/events';
+            const method = editingEventId ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method: method,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
@@ -74,12 +101,12 @@ const AdminPage = () => {
             if (response.ok) {
                 setIsModalOpen(false);
                 setRefreshKey(prev => prev + 1); // Trigger calendar refresh
-                toast.success('活動建立成功！');
+                toast.success(editingEventId ? '活動更新成功！' : '活動建立成功！');
             } else {
-                toast.error('建立活動失敗');
+                toast.error(editingEventId ? '更新活動失敗' : '建立活動失敗');
             }
         } catch (err) {
-            console.error('Error creating event:', err);
+            console.error('Error submitting event:', err);
         }
     };
 
@@ -105,6 +132,40 @@ const AdminPage = () => {
         }
     };
 
+    const handleAddEventClick = () => {
+        setEditingEventId(null);
+        setNewEvent({
+            title: '',
+            description: '',
+            eventTime: new Date().toLocaleDateString('en-CA') + 'T19:00',
+            maxParticipants: 10,
+            eventType: 'OFFICIAL',
+            gameType: gameTypes.length > 0 ? gameTypes[0].code : 'BOARD_GAME'
+        });
+        setIsModalOpen(true);
+    };
+
+    const handleEditEvent = (event) => {
+        setEditingEventId(event.id);
+        const dateObj = new Date(event.eventTime);
+        const yyyy = dateObj.getFullYear();
+        const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const dd = String(dateObj.getDate()).padStart(2, '0');
+        const hh = String(dateObj.getHours()).padStart(2, '0');
+        const min = String(dateObj.getMinutes()).padStart(2, '0');
+        const localDateTimeStr = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+
+        setNewEvent({
+            title: event.title,
+            description: event.description,
+            eventTime: localDateTimeStr,
+            maxParticipants: event.maxParticipants,
+            eventType: event.eventType,
+            gameType: event.gameType?.code || 'BOARD_GAME'
+        });
+        setIsModalOpen(true);
+    };
+
     return (
         <div className="dashboard-container">
             <nav className="dashboard-nav">
@@ -119,77 +180,28 @@ const AdminPage = () => {
             </nav>
 
             <main className="dashboard-content">
-                <header className="content-header">
-                    <h1>Admin Control Panel</h1>
-                    <p>Mock page for administrative actions, user management, and system settings.</p>
+                <header className="content-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                        <h1>Admin Control Panel</h1>
+                        <p>管理店內活動行程與發送全站推播通知。</p>
+                    </div>
+                    <div>
+                        <button
+                            className="login-btn"
+                            style={{ background: 'var(--success)', border: 'none' }}
+                            onClick={() => navigate('/admin/events')}
+                        >
+                            🔍 進階活動查詢與管理
+                        </button>
+                    </div>
                 </header>
-
-                <section className="stats-grid">
-                    <div className="stat-card">
-                        <div className="stat-icon">📈</div>
-                        <div className="stat-info">
-                            <h3>System Load</h3>
-                            <div className="stat-val-row">
-                                <span className="stat-value">42%</span>
-                                <span className="stat-change">Normal</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-icon">🔔</div>
-                        <div className="stat-info">
-                            <h3>Pending Alerts</h3>
-                            <div className="stat-val-row">
-                                <span className="stat-value">3</span>
-                                <span className="stat-change" style={{ color: 'var(--primary)' }}>Attention</span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section className="table-section">
-                    <div className="section-header">
-                        <h2>User Management (Mock)</h2>
-                    </div>
-                    <div className="table-container">
-                        <table className="mock-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Username</th>
-                                    <th>Role</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>#1</td>
-                                    <td>guybrush</td>
-                                    <td><span className="status-badge available">ADMIN</span></td>
-                                    <td><button className="login-btn" style={{ padding: '4px 12px', fontSize: '0.8rem' }}>Edit</button></td>
-                                </tr>
-                                <tr>
-                                    <td>#2</td>
-                                    <td>codingfarmer999</td>
-                                    <td><span className="status-badge maintenance">USER</span></td>
-                                    <td><button className="login-btn" style={{ padding: '4px 12px', fontSize: '0.8rem' }}>Edit</button></td>
-                                </tr>
-                                <tr>
-                                    <td>#3</td>
-                                    <td>line_User123</td>
-                                    <td><span className="status-badge maintenance">USER</span></td>
-                                    <td><button className="login-btn" style={{ padding: '4px 12px', fontSize: '0.8rem' }}>Edit</button></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
 
                 <section className="admin-calendar-section">
                     <EventCalendar
                         key={refreshKey}
                         isAdmin={true}
-                        onAddEvent={() => setIsModalOpen(true)}
+                        onAddEvent={handleAddEventClick}
+                        onEditEvent={handleEditEvent}
                         onDeleteEvent={handleDeleteEvent}
                     />
                 </section>
@@ -232,7 +244,15 @@ const AdminPage = () => {
                         </button>
 
                         {status && (
-                            <div style={{ marginTop: '15px', padding: '12px', borderRadius: '8px', background: status.includes('Error') ? 'rgba(239, 68, 68, 0.1)' : 'rgba(0, 185, 0, 0.1)', color: status.includes('Error') ? '#ef4444' : 'var(--primary)', fontSize: '0.9rem' }}>
+                            <div style={{
+                                marginTop: '15px',
+                                padding: '12px',
+                                borderRadius: '8px',
+                                background: status.includes('Error') ? 'rgba(239, 68, 68, 0.1)' : 'var(--border-subtle)',
+                                color: status.includes('Error') ? '#ef4444' : 'var(--success)',
+                                fontSize: '0.9rem',
+                                border: `1px solid ${status.includes('Error') ? 'rgba(239, 68, 68, 0.2)' : 'var(--glass-border)'}`
+                            }}>
                                 {status}
                             </div>
                         )}
@@ -240,12 +260,12 @@ const AdminPage = () => {
                 </section>
             </main>
 
-            {/* Create Event Modal */}
+            {/* Create / Edit Event Modal */}
             {isModalOpen && (
                 <div className="modal-overlay">
                     <div className="modal-content admin-modal">
-                        <h2>建立新活動</h2>
-                        <form onSubmit={handleCreateEvent}>
+                        <h2>{editingEventId ? '編輯活動' : '建立新活動'}</h2>
+                        <form onSubmit={handleSubmitEvent}>
                             <div className="form-group">
                                 <label>活動標題</label>
                                 <input
@@ -268,31 +288,58 @@ const AdminPage = () => {
                                 </div>
                                 <div className="form-group">
                                     <label>遊戲種類</label>
-                                    <input
-                                        type="text"
+                                    <select
                                         value={newEvent.gameType}
                                         onChange={e => setNewEvent({ ...newEvent, gameType: e.target.value })}
-                                    />
+                                        disabled={gameTypes.length === 0}
+                                    >
+                                        {gameTypes.length === 0 ? (
+                                            <option value="">讀取中...</option>
+                                        ) : (
+                                            gameTypes.map(gt => (
+                                                <option key={gt.code} value={gt.code}>
+                                                    {gt.displayName}
+                                                </option>
+                                            ))
+                                        )}
+                                    </select>
                                 </div>
                             </div>
                             <div className="form-row">
                                 <div className="form-group">
-                                    <label>時間</label>
+                                    <label>活動日期</label>
                                     <input
-                                        type="datetime-local"
+                                        type="date"
                                         required
-                                        value={newEvent.eventTime}
-                                        onChange={e => setNewEvent({ ...newEvent, eventTime: e.target.value })}
+                                        value={newEvent.eventTime.split('T')[0]}
+                                        onChange={e => {
+                                            const timePart = newEvent.eventTime.split('T')[1] || '19:00';
+                                            setNewEvent({ ...newEvent, eventTime: `${e.target.value}T${timePart}` });
+                                        }}
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label>人數上限</label>
-                                    <input
-                                        type="number"
-                                        value={newEvent.maxParticipants}
-                                        onChange={e => setNewEvent({ ...newEvent, maxParticipants: e.target.value })}
-                                    />
+                                    <label>時間 (整點/半點)</label>
+                                    <select
+                                        value={newEvent.eventTime.split('T')[1]}
+                                        onChange={e => {
+                                            const datePart = newEvent.eventTime.split('T')[0];
+                                            setNewEvent({ ...newEvent, eventTime: `${datePart}T${e.target.value}` });
+                                        }}
+                                    >
+                                        {timeOptions.map(opt => (
+                                            <option key={opt} value={opt}>{opt}</option>
+                                        ))}
+                                    </select>
                                 </div>
+                            </div>
+                            <div className="form-group">
+                                <label>人數上限</label>
+                                <input
+                                    type="number"
+                                    value={newEvent.maxParticipants}
+                                    onChange={e => setNewEvent({ ...newEvent, maxParticipants: e.target.value })}
+                                />
                             </div>
                             <div className="form-group">
                                 <label>活動描述</label>
@@ -304,7 +351,7 @@ const AdminPage = () => {
                             </div>
                             <div className="modal-actions">
                                 <button type="button" className="cancel-btn" onClick={() => setIsModalOpen(false)}>取消</button>
-                                <button type="submit" className="submit-btn">建立活動</button>
+                                <button type="submit" className="submit-btn">{editingEventId ? '儲存變更' : '建立活動'}</button>
                             </div>
                         </form>
                     </div>

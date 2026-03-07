@@ -1,8 +1,11 @@
 :root {
   /* Common */
-  --primary: #00b900;
-  /* LINE Green */
-  --primary-hover: #009900;
+  --primary: #6366f1;
+  /* Modern Indigo */
+  --primary-hover: #4f46e5;
+  --primary-glow: rgba(99, 102, 241, 0.3);
+  --success: #10b981;
+  /* Professional Emerald for success states */
   --font-family: 'Inter', system-ui, -apple-system, sans-serif;
 
   /* Dark Theme (Default) */
@@ -23,12 +26,20 @@
   --bg-surface: #ffffff;
   --text-main: #1e293b;
   --text-muted: #334155;
-  /* Darker for better contrast */
   --glass-bg: rgba(255, 255, 255, 0.8);
   --glass-border: #cbd5e1;
-  /* Darker border */
   --border-subtle: #e2e8f0;
-  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 4px 20px rgba(0, 0, 0, 0.08);
+  /* Stronger shadow for light mode */
+}
+
+/* Enhancing visibility for light mode cards */
+[data-theme='light'] .event-card,
+[data-theme='light'] .stat-card,
+[data-theme='light'] .table-section,
+[data-theme='light'] .calendar-section {
+  border: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
 }
 
 * {
