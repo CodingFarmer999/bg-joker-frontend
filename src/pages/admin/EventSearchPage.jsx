@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import NotificationBell from '../components/NotificationBell';
-import ThemeToggle from '../components/ThemeToggle';
+import AdminHeader from '../../components/AdminHeader';
 import './EventSearchPage.css';
 
 const EventSearchPage = () => {
@@ -65,25 +64,13 @@ const EventSearchPage = () => {
 
     return (
         <div className="dashboard-container">
-            <nav className="dashboard-nav">
-                <div className="logo">BG Joker - Admin</div>
-                <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <ThemeToggle />
-                    <NotificationBell />
-                    <button className="login-btn" onClick={() => navigate('/')}>
-                        Home
-                    </button>
-                </div>
-            </nav>
+            <AdminHeader />
             <main className="dashboard-content">
                 <header className="search-header">
                     <div>
                         <h1>活動查詢與管理</h1>
                         <p className="subtitle">依條件搜尋活動，並進入該活動後台進行管理。</p>
                     </div>
-                    <button className="back-btn" onClick={() => navigate('/admin')}>
-                        返回控制台
-                    </button>
                 </header>
 
                 <section className="search-filters">

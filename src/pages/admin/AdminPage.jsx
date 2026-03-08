@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import NotificationBell from '../components/NotificationBell';
-import EventCalendar from '../components/EventCalendar';
-import ThemeToggle from '../components/ThemeToggle';
-import './Dashboard.css';
+import AdminHeader from '../../components/AdminHeader';
+import EventCalendar from '../../components/EventCalendar';
+import '../user/Dashboard.css';
 import './AdminPage.css'; // I will create this for modal styles
 
 const AdminPage = () => {
@@ -168,16 +167,7 @@ const AdminPage = () => {
 
     return (
         <div className="dashboard-container">
-            <nav className="dashboard-nav">
-                <div className="logo">BG Joker - Admin</div>
-                <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <ThemeToggle />
-                    <NotificationBell />
-                    <button className="login-btn" onClick={() => navigate('/')}>
-                        Back to Dashboard
-                    </button>
-                </div>
-            </nav>
+            <AdminHeader />
 
             <main className="dashboard-content">
                 <header className="content-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import NotificationBell from '../components/NotificationBell';
-import ThemeToggle from '../components/ThemeToggle';
+import AdminHeader from '../../components/AdminHeader';
 import './EventManagementPage.css';
 
 const EventManagementPage = () => {
@@ -75,14 +74,7 @@ const EventManagementPage = () => {
     if (isLoading) {
         return (
             <div className="dashboard-container">
-                <nav className="dashboard-nav">
-                    <div className="logo">BG Joker - Admin</div>
-                    <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <ThemeToggle />
-                        <NotificationBell />
-                        <button className="login-btn" onClick={() => navigate('/')}>Home</button>
-                    </div>
-                </nav>
+                <AdminHeader />
                 <div className="management-page-loader">
                     <div className="loader-small"></div>
                     <p>載入資料中...</p>
@@ -94,14 +86,7 @@ const EventManagementPage = () => {
     if (!eventDetails) {
         return (
             <div className="dashboard-container">
-                <nav className="dashboard-nav">
-                    <div className="logo">BG Joker - Admin</div>
-                    <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <ThemeToggle />
-                        <NotificationBell />
-                        <button className="login-btn" onClick={() => navigate('/')}>Home</button>
-                    </div>
-                </nav>
+                <AdminHeader />
                 <main className="dashboard-content">
                     <div className="error-message">找不到該活動資料。</div>
                     <button className="back-btn" onClick={() => navigate('/admin')}>返回行事曆</button>
@@ -112,16 +97,7 @@ const EventManagementPage = () => {
 
     return (
         <div className="dashboard-container">
-            <nav className="dashboard-nav">
-                <div className="logo">BG Joker - Admin</div>
-                <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <ThemeToggle />
-                    <NotificationBell />
-                    <button className="login-btn" onClick={() => navigate('/')}>
-                        Home
-                    </button>
-                </div>
-            </nav>
+            <AdminHeader />
             <main className="dashboard-content">
                 <header className="management-header">
                     <div className="header-info">

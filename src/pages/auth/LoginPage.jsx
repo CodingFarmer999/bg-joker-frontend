@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import '../App.css'
-import lineLogo from '../assets/line-login.png'
+import '../../App.css'
+import lineLogo from '../../assets/line-login.png'
 
 function LoginPage() {
     const [email, setEmail] = useState('')

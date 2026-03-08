@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import FcmTester from '../components/FcmTester';
-import NotificationBell from '../components/NotificationBell';
-import EventCalendar from '../components/EventCalendar';
-import ThemeToggle from '../components/ThemeToggle';
+import FcmTester from '../../components/FcmTester';
+import NotificationBell from '../../components/NotificationBell';
+import EventCalendar from '../../components/EventCalendar';
+import StoreSelector from '../../components/StoreSelector';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -51,7 +51,7 @@ const Dashboard = () => {
         if (Notification.permission === 'granted') {
           console.log('[Dashboard] Permission is granted, attempting to get Firebase token...');
           import('firebase/messaging').then(async ({ getToken }) => {
-            const { messaging } = await import('../firebase');
+            const { messaging } = await import('../../firebase');
             const VAPID_KEY = 'BARtYAZpbdC3YjphAm3xkjT57oxzne4MAMkJ-dUlJxy8hBVRxyDuwpY_i8XovoFKFHvlKjJ5glK7iiFzHv6SCN4';
             const token = await getToken(messaging, { vapidKey: VAPID_KEY });
             console.log('[Dashboard] Retrieved FCM token:', token ? 'Success' : 'Failed/Empty');
@@ -106,20 +106,21 @@ const Dashboard = () => {
       <nav className="dashboard-nav">
         <div className="logo">BG Joker</div>
         <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <ThemeToggle />
           {isLoadingUser ? (
             <div className="loader-small"></div>
           ) : user ? (
             <div className="user-profile-header">
+              <StoreSelector />
               <NotificationBell />
-              {/* 目前為了方便你測試，只要登入就會顯示 Admin 按鈕。之後可以改成 user.role === 'ROLE_ADMIN' 才顯示 */}
-              <button
-                className="login-btn"
-                onClick={() => navigate('/admin')}
-                style={{ background: 'transparent', border: '1px solid var(--primary)', color: 'var(--primary)' }}
-              >
-                Admin Panel
-              </button>
+              {user.role === 'ROLE_ADMIN' && (
+                <button
+                  className="login-btn"
+                  onClick={() => navigate('/admin')}
+                  style={{ background: 'transparent', border: '1px solid var(--primary)', color: 'var(--primary)' }}
+                >
+                  Admin Panel
+                </button>
+              )}
               <span className="user-name">Hi, {user.displayName || user.username}</span>
               <button className="logout-btn" onClick={handleLogout}>
                 Logout
