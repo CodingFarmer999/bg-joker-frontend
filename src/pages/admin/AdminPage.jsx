@@ -25,6 +25,7 @@ const AdminPage = () => {
         gameType: 'BOARD_GAME'
     });
     const [gameTypes, setGameTypes] = useState([]);
+    const [currentUserId, setCurrentUserId] = useState(null);
 
     useEffect(() => {
         const fetchGameTypes = async () => {
@@ -38,7 +39,24 @@ const AdminPage = () => {
                 console.error('Failed to fetch game types', err);
             }
         };
+        const fetchCurrentUser = async () => {
+            try {
+                const token = localStorage.getItem('joker_token');
+                if (!token) return;
+                const response = await fetch('/api/auth/validate', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setCurrentUserId(data.id);
+                }
+            } catch (err) {
+                console.error('Failed to fetch current user', err);
+            }
+        };
         fetchGameTypes();
+        fetchCurrentUser();
     }, []);
 
     const timeOptions = [];
@@ -93,7 +111,7 @@ const AdminPage = () => {
                     ...newEvent,
                     eventTime: new Date(newEvent.eventTime).toISOString(),
                     shopId: 1, // Default
-                    organizerId: 1 // Default or from current user
+                    organizerId: currentUserId
                 })
             });
 
