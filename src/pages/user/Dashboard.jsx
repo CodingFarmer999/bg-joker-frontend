@@ -4,12 +4,14 @@ import FcmTester from '../../components/FcmTester';
 import NotificationBell from '../../components/NotificationBell';
 import EventCalendar from '../../components/EventCalendar';
 import StoreSelector from '../../components/StoreSelector';
+import CreateEventModal from '../../components/CreateEventModal';
 import './Dashboard.css';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('joker_token');
@@ -121,6 +123,13 @@ const Dashboard = () => {
                   Admin Panel
                 </button>
               )}
+              <button
+                className="login-btn"
+                onClick={() => setShowCreateModal(true)}
+                style={{ background: 'var(--primary)', color: '#fff', border: 'none' }}
+              >
+                + 發起揪團
+              </button>
               <span className="user-name">Hi, {user.displayName || user.username}</span>
               <button className="logout-btn" onClick={handleLogout}>
                 Logout
@@ -162,7 +171,11 @@ const Dashboard = () => {
         </section>
       </main>
 
-      {/* Decorative elements */}
+      {showCreateModal && (
+        <CreateEventModal
+          onClose={() => setShowCreateModal(false)}
+        />
+      )}
     </div>
   );
 };

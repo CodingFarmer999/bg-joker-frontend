@@ -20,11 +20,23 @@ const EventSearchPage = () => {
     const fetchEvents = async () => {
         setIsLoading(true);
         try {
-            const response = await fetch('/api/events');
-            if (response.ok) {
-                const data = await response.json();
-                setEvents(data);
-            }
+            const token = localStorage.getItem('joker_token');
+            // 使用管理員端點，可取得包含 PENDING_REVIEW 的所有活動
+            const [publicRes, pendingRes] = await Promise.all([
+                fetch('/api/events'),
+                fetch('/api/admin/events/pending', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                })
+            ]);
+            const publicEvents = publicRes.ok ? await publicRes.json() : [];
+            const pendingEvents = pendingRes.ok ? await pendingRes.json() : [];
+
+            // 合併，避免重複 ID
+            const merged = [...publicEvents];
+            pendingEvents.forEach(pe => {
+                if (!merged.find(e => e.id === pe.id)) merged.push(pe);
+            });
+            setEvents(merged);
         } catch (err) {
             console.error('Failed to fetch events:', err);
         } finally {
@@ -101,6 +113,7 @@ const EventSearchPage = () => {
                         <option value="OPEN">報名中 (OPEN)</option>
                         <option value="FULL">已額滿 (FULL)</option>
                         <option value="CANCELLED">已取消 (CANCELLED)</option>
+                        <option value="PENDING_REVIEW">待審核 (PENDING_REVIEW)</option>
                     </select>
                 </section>
 

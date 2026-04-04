@@ -17,6 +17,8 @@ const AdminPage = React.lazy(() => import('./pages/admin/AdminPage'));
 const EventSearchPage = React.lazy(() => import('./pages/admin/EventSearchPage'));
 const EventManagementPage = React.lazy(() => import('./pages/admin/EventManagementPage'));
 const AdminManagementPage = React.lazy(() => import('./pages/admin/AdminManagementPage'));
+const EventReviewListPage = React.lazy(() => import('./pages/admin/EventReviewListPage'));
+const EventReviewPage = React.lazy(() => import('./pages/admin/EventReviewPage'));
 
 function App() {
   useEffect(() => {
@@ -54,6 +56,16 @@ function App() {
           <Route path="/admin/users" element={
             <ProtectedRoute requireAdmin={true}>
               <AdminManagementPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/reviews" element={
+            <ProtectedRoute requireAdmin={true}>
+              <EventReviewListPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/reviews/:eventId" element={
+            <ProtectedRoute requireAdmin={true}>
+              <EventReviewPage />
             </ProtectedRoute>
           } />
         </Routes>

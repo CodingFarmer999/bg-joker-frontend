@@ -133,6 +133,11 @@
     color: #9ca3af;
 }
 
+.event-status-badge.pending_review {
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.12);
+}
+
 .actions-cell {
     display: flex;
     gap: 0.8rem;

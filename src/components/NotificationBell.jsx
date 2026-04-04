@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './NotificationBell.css';
 
 const NotificationBell = () => {
+    const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
@@ -63,26 +65,31 @@ const NotificationBell = () => {
     };
 
     const handleReadNotification = async (notification) => {
-        if (notification.isRead) return;
-
         const token = localStorage.getItem('joker_token');
         if (!token) return;
 
-        try {
-            const res = await fetch(`/api/notifications/${notification.id}/read`, {
-                method: 'PUT',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-
-            if (res.ok) {
-                // Update local state to feel snappy
-                setNotifications(prev =>
-                    prev.map(n => n.id === notification.id ? { ...n, isRead: true } : n)
-                );
-                setUnreadCount(prev => Math.max(0, prev - 1));
+        // 若未讀，先標記已讀
+        if (!notification.isRead) {
+            try {
+                const res = await fetch(`/api/notifications/${notification.id}/read`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    setNotifications(prev =>
+                        prev.map(n => n.id === notification.id ? { ...n, isRead: true } : n)
+                    );
+                    setUnreadCount(prev => Math.max(0, prev - 1));
+                }
+            } catch (error) {
+                console.error('Failed to mark notification as read:', error);
             }
-        } catch (error) {
-            console.error('Failed to mark notification as read:', error);
+        }
+
+        // 若有 actionUrl，跳轉至對應頁面
+        if (notification.actionUrl) {
+            setIsOpen(false);
+            navigate(notification.actionUrl);
         }
     };
 
@@ -112,7 +119,7 @@ const NotificationBell = () => {
                             notifications.map(notification => (
                                 <div
                                     key={notification.id}
-                                    className={`notification-item ${!notification.isRead ? 'unread' : ''}`}
+                                    className={`notification-item ${!notification.isRead ? 'unread' : ''} ${notification.actionUrl ? 'has-action' : ''}`}
                                     onClick={() => handleReadNotification(notification)}
                                 >
                                     <div className="notification-item-header">

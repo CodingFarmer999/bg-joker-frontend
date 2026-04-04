@@ -38,6 +38,7 @@ const AdminHeader = () => {
 
     const menuItems = [
         { path: '/admin', label: '🏠 控制台首頁', exact: true },
+        { path: '/admin/reviews', label: '⏳ 待審核揪團', exact: false },
         { path: '/admin/events', label: '📅 活動查詢與管理', exact: false },
         { path: '/admin/users', label: '👥 管理員設定', exact: true },
         { path: '/', label: '⬅️ 返回前台', exact: true }

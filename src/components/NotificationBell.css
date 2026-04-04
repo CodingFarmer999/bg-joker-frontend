@@ -111,6 +111,19 @@
     border-left: 3px solid var(--primary);
 }
 
+.notification-item.has-action:hover {
+    background: var(--border-subtle);
+    text-decoration: none;
+}
+
+.notification-item.has-action::after {
+    content: ' →';
+    font-size: 0.75rem;
+    color: var(--primary);
+    float: right;
+    margin-top: 2px;
+}
+
 .notification-item-header {
     display: flex;
     justify-content: space-between;

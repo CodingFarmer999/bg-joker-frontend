@@ -60,9 +60,25 @@ const EventCalendar = ({ isAdmin = false, onAddEvent, onEditEvent, onDeleteEvent
         return days;
     }, [currentDate, events]);
 
-    const filteredEvents = filter === 'ALL'
-        ? events
-        : events.filter(e => e.eventType === filter);
+    const now = new Date();
+    const viewYear = currentDate.getFullYear();
+    const viewMonth = currentDate.getMonth();
+    const isViewingCurrentMonth =
+        viewYear === now.getFullYear() && viewMonth === now.getMonth();
+
+    const filteredEvents = events.filter(e => {
+        const eventDate = new Date(e.eventTime);
+        // 必須符合目前瀏覽的月份
+        const inViewedMonth =
+            eventDate.getFullYear() === viewYear && eventDate.getMonth() === viewMonth;
+        // 類型篩選
+        const matchesType = filter === 'ALL' || e.eventType === filter;
+
+        if (!inViewedMonth || !matchesType) return false;
+        // 瀏覽當月時，過濾掉已結束（時間已過）的活動
+        if (isViewingCurrentMonth) return eventDate >= now;
+        return true;
+    });
 
     const getStatusLabel = (status) => {
         switch (status) {
@@ -184,7 +200,9 @@ const EventCalendar = ({ isAdmin = false, onAddEvent, onEditEvent, onDeleteEvent
                 </div>
             ) : (
                 <div className="event-list-view animated-fade">
-                    <div className="list-title">本月精選活動</div>
+                    <div className="list-title">
+                        {viewYear} 年 {viewMonth + 1} 月精選活動
+                    </div>
                     <div className="event-grid">
                         {filteredEvents.length === 0 && !isLoading ? (
                             <div className="no-events" style={{ color: 'rgba(255,255,255,0.5)', padding: '2rem' }}>本月暫無活動</div>
