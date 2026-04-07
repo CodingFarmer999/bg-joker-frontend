@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 import AdminHeader from '../../components/AdminHeader';
 import './EventSearchPage.css';
+import './AdminPage.css';
 
 const EventSearchPage = () => {
     const navigate = useNavigate();
@@ -12,6 +14,8 @@ const EventSearchPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('ALL');
     const [typeFilter, setTypeFilter] = useState('ALL');
+    const [deleteTarget, setDeleteTarget] = useState(null); // { id, title } | null
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         fetchEvents();
@@ -44,25 +48,28 @@ const EventSearchPage = () => {
         }
     };
 
-    const handleDeleteEvent = async (eventId) => {
-        if (!window.confirm('確定要刪除此活動嗎？這將會同步移除所有報名資料且無法復原。')) return;
-
+    const handleDeleteConfirm = async () => {
+        if (!deleteTarget) return;
+        setIsDeleting(true);
         try {
             const token = localStorage.getItem('joker_token');
-            const response = await fetch(`/api/events/${eventId}`, {
+            const response = await fetch(`/api/events/${deleteTarget.id}`, {
                 method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
 
             if (response.ok) {
-                setEvents(prev => prev.filter(e => e.id !== eventId));
+                setEvents(prev => prev.filter(e => e.id !== deleteTarget.id));
+                toast.success('活動已刪除');
             } else {
-                alert('刪除失敗');
+                toast.error('刪除失敗，請稍後再試');
             }
         } catch (err) {
             console.error('Error deleting event:', err);
+            toast.error('刪除時發生錯誤');
+        } finally {
+            setIsDeleting(false);
+            setDeleteTarget(null);
         }
     };
 
@@ -165,7 +172,7 @@ const EventSearchPage = () => {
                                                 </button>
                                                 <button
                                                     className="delete-icon-btn"
-                                                    onClick={() => handleDeleteEvent(event.id)}
+                                                    onClick={() => setDeleteTarget({ id: event.id, title: event.title })}
                                                 >
                                                     🗑️
                                                 </button>
@@ -178,6 +185,47 @@ const EventSearchPage = () => {
                     )}
                 </section>
             </main>
+
+            {/* 刪除確認對話框 */}
+            {deleteTarget && (
+                <div className="modal-overlay">
+                    <div
+                        className="modal-content admin-modal animated-fade"
+                        onClick={e => e.stopPropagation()}
+                        onMouseDown={e => e.stopPropagation()}
+                        style={{ maxWidth: '420px', textAlign: 'center' }}
+                    >
+                        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚠️</div>
+                        <h2 style={{ marginBottom: '0.75rem' }}>確認刪除？</h2>
+                        <p style={{ color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
+                            即將刪除活動：
+                        </p>
+                        <p style={{ fontWeight: 700, marginBottom: '1.5rem' }}>
+                            「{deleteTarget.title}」
+                        </p>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '2rem' }}>
+                            此操作將同步移除所有報名資料，且無法復原。
+                        </p>
+                        <div className="modal-actions" style={{ justifyContent: 'center' }}>
+                            <button
+                                className="cancel-btn"
+                                onClick={() => setDeleteTarget(null)}
+                                disabled={isDeleting}
+                            >
+                                取消
+                            </button>
+                            <button
+                                className="submit-btn"
+                                style={{ background: '#ef4444' }}
+                                onClick={handleDeleteConfirm}
+                                disabled={isDeleting}
+                            >
+                                {isDeleting ? '刪除中…' : '確認刪除'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

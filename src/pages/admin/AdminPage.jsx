@@ -271,7 +271,7 @@ const AdminPage = () => {
             {/* Create / Edit Event Modal */}
             {isModalOpen && (
                 <div className="modal-overlay">
-                    <div className="modal-content admin-modal">
+                    <div className="modal-content admin-modal" onClick={e => e.stopPropagation()} onMouseDown={e => e.stopPropagation()}>
                         <h2>{editingEventId ? '編輯活動' : '建立新活動'}</h2>
                         <form onSubmit={handleSubmitEvent}>
                             <div className="form-group">

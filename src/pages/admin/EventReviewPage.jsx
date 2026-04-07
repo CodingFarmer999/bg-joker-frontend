@@ -59,8 +59,11 @@ const EventReviewPage = () => {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
             if (res.ok) {
-                const label = action === 'APPROVE' ? '審核通過' : '已退件';
-                toast.success(`揪團已${label}，系統將自動通知申請人`);
+                if (action === 'APPROVE') {
+                    toast.success('揪團已審核通過，系統將自動通知申請人');
+                } else {
+                    toast('揪團已退件，系統將自動通知申請人', { icon: '❌' });
+                }
                 navigate('/admin/reviews');
             } else {
                 const msg = await res.text();
@@ -184,10 +187,11 @@ const EventReviewPage = () => {
 
             {/* 確認對話框 */}
             {showConfirm && (
-                <div className="modal-overlay" onClick={() => setShowConfirm(null)}>
+                <div className="modal-overlay">
                     <div
                         className="modal-content admin-modal animated-fade"
                         onClick={e => e.stopPropagation()}
+                        onMouseDown={e => e.stopPropagation()}
                         style={{ maxWidth: '420px', textAlign: 'center' }}
                     >
                         <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>

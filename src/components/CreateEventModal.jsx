@@ -11,11 +11,22 @@ const GAME_TYPES = [
     { code: 'WS', label: 'Weiß Schwarz (黑白雙翼)' },
 ];
 
+// 產生 00:00 ~ 23:30，每 30 分鐘一個選項
+const TIME_OPTIONS = [];
+for (let h = 0; h < 24; h++) {
+    const hh = String(h).padStart(2, '0');
+    TIME_OPTIONS.push(`${hh}:00`);
+    TIME_OPTIONS.push(`${hh}:30`);
+}
+
+const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+
 const CreateEventModal = ({ onClose, onSuccess }) => {
     const [form, setForm] = useState({
         title: '',
         gameType: 'BOARD_GAME',
-        eventTime: '',
+        eventDate: today,
+        eventTimeSlot: '19:00',
         maxParticipants: 4,
         description: '',
     });
@@ -32,13 +43,14 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
             toast.error('請填寫活動名稱');
             return;
         }
-        if (!form.eventTime) {
-            toast.error('請選擇活動時間');
+        if (!form.eventDate) {
+            toast.error('請選擇活動日期');
             return;
         }
 
         const token = localStorage.getItem('joker_token');
         const shopId = localStorage.getItem('joker_selected_store_id');
+        const combinedDateTime = `${form.eventDate}T${form.eventTimeSlot}`;
 
         setIsSubmitting(true);
         try {
@@ -53,7 +65,7 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
                     gameType: form.gameType,
                     title: form.title.trim(),
                     description: form.description.trim(),
-                    eventTime: new Date(form.eventTime).toISOString(),
+                    eventTime: new Date(combinedDateTime).toISOString(),
                     maxParticipants: parseInt(form.maxParticipants),
                 }),
             });
@@ -76,8 +88,13 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
     };
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content admin-modal animated-fade" onClick={e => e.stopPropagation()} style={{ maxWidth: '520px' }}>
+        <div className="modal-overlay">
+            <div
+                className="modal-content admin-modal animated-fade"
+                onClick={e => e.stopPropagation()}
+                onMouseDown={e => e.stopPropagation()}
+                style={{ maxWidth: '520px' }}
+            >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                     <h2 style={{ margin: 0 }}>發起揪團</h2>
                     <button
@@ -114,19 +131,34 @@ const CreateEventModal = ({ onClose, onSuccess }) => {
                         </select>
                     </div>
 
-                    <div className="form-group">
-                        <label>活動時間 *</label>
-                        <input
-                            type="datetime-local"
-                            name="eventTime"
-                            value={form.eventTime}
-                            onChange={handleChange}
-                            required
-                        />
+                    <div className="form-row">
+                        <div className="form-group">
+                            <label>活動日期 *</label>
+                            <input
+                                type="date"
+                                name="eventDate"
+                                value={form.eventDate}
+                                onChange={handleChange}
+                                min={today}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>活動時間 *</label>
+                            <select
+                                name="eventTimeSlot"
+                                value={form.eventTimeSlot}
+                                onChange={handleChange}
+                            >
+                                {TIME_OPTIONS.map(t => (
+                                    <option key={t} value={t}>{t}</option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
 
                     <div className="form-group">
-                        <label>人數上限 *</label>
+                        <label>人數上限 *（2～100 人）</label>
                         <input
                             type="number"
                             name="maxParticipants"
